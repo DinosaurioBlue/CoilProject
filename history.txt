@@ -1,0 +1,8 @@
+USER 1: anaa SCORE: 20
+USER 2: anaaaaaa SCORE: 20
+USER 3: jhbgfkjqb SCORE: 20
+USER 4: ana
+USER 5: ana
+USER 6: anaaaaaaa6
+USER 7: anaasas
+USER 8: hola
