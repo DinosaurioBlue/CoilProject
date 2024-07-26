@@ -9,8 +9,8 @@
 //this function signs up new players
 void signUp(void){
 	char player[NAME_MAX];
-	char countLine[NAME_MAX];
-	int count = 1;
+//	char countLine[NAME_MAX];
+//	int count = 1;
 	
 	
 	FILE* pFile;//pointer to a file
@@ -28,14 +28,22 @@ void signUp(void){
 		perror("Error opening file");
 	}
 	
-	//keep track of the number of users logged in 
+/*	//keep track of the number of users logged in 
 	//reads how many lines are in the file 	
 	while(fgets(countLine, sizeof(countLine), pRead) != NULL){
 		count++;
-	}
+	}*/
 		
-	fprintf(pFile, "USER %d: %s\n", count, player); //writes the username into the file 
+	fprintf(pFile, "USER: %s  SCORE: 0\n", player); //writes the username and the score into the file 
 	fclose(pFile);//closes the file 
+	
+	/*
+	PLAY FUNCTION
+	SCORE OF PLAYER
+	*/
+	
+	void updateScore(points, player);
+	
 }
 
 //this function checks if the player already exists and they log in with previous score
@@ -72,9 +80,56 @@ void login(void){
 	else{
 		printf("great, welcome %s\n", exist_player);
 	}
+	/*
+	PLAY FUNCTION
+	SCORE OF PLAYER
+	*/
+	
+	void updateScore(points, exist_player);
+		
 }
 
 
+//this function updates the score of a player
+void updateScore(int score, char *player){
+	FILE *pFile;
+	FILE *pTemp;
+	char buffer[7000]; //stores every character in the file
+	char temporary[100];
+	int found = 0;
+	
+	pFile = fopen("history.txt", "r+");
+	if(pFile == NULL){ //checks if the file exists
+		perror("Error opening file");
+	}
+	
+	pTemp = fopen("temporay.txt", "w");
+	if(pTemp == NULL){ //checks if the file exists
+		perror("Error opening file");
+		fclose(file);
+	}
+	
 
-
+	//read each line and if it encounters the name of the player, it modifies their score. It writes it into a temporay file 
+	while(fgets(buffer, sizeof(buffer), pFile) != NULL){
+		if(strstr(buffer, player) != NULL){
+			sprintf(temporary, "USER: %s SCORE %d\n", player, score);
+			fputs(temporary, pTemp);
+			found = 1;
+		}
+		else{
+			fputs(buffer, pTemp);			
+		}
+	}
+	
+	fclose(pFile);
+	fclose(pTemp);
+	
+	//replaces original file with the updated content
+	if(found != 0){
+		remove("history.txt");
+		rename("temporary.txt", "history.txt");
+	}
+	
+}
 
