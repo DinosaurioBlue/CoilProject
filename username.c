@@ -9,32 +9,19 @@
 //this function signs up new players
 void signUp(void){
 	char player[NAME_MAX];
-//	char countLine[NAME_MAX];
-//	int count = 1;
-	
-	
 	FILE* pFile;//pointer to a file
-	FILE* pRead;
-	
+
 	
 	printf("Enter your name: "); //asks for the username
 	scanf("%s", player);
 	
-	pFile = fopen("history.txt", "a"); //opens file
-	pRead = fopen("history.txt", "r");
-	
-	
+	pFile = fopen("history.txt", "a+"); //opens file
 	if(pFile == NULL){ //checks if the file exists
 		perror("Error opening file");
 	}
 	
-/*	//keep track of the number of users logged in 
-	//reads how many lines are in the file 	
-	while(fgets(countLine, sizeof(countLine), pRead) != NULL){
-		count++;
-	}*/
-		
-	fprintf(pFile, "USER: %s  SCORE: 0\n", player); //writes the username and the score into the file 
+	fprintf(pFile, "USER:%s SCORE:0\n", player); 
+	//writes the username and the score into the file 
 	fclose(pFile);//closes the file 
 	
 	/*
@@ -42,29 +29,31 @@ void signUp(void){
 	SCORE OF PLAYER
 	*/
 	
-	void updateScore(points, player);
+	updateScore(500, player);
 	
 }
 
 //this function checks if the player already exists and they log in with previous score
 void login(void){
 	char exist_player[NAME_MAX];
-	char search[NAME_MAX];
-	int found;
+	char line[200];
+	char username[NAME_MAX];
+	int found = 0;
 	FILE *pCheck;
 	
 	printf("Write your username: ");
 	scanf("%s", exist_player);
 	
 	pCheck = fopen("history.txt", "r");
-	
 	if(pCheck == NULL){ //checks if the file exists
 		perror("Error opening file");
 	}
 	
-	while(fgets(search, sizeof(search), pCheck) != NULL){
-		//compares two strings 
-		if(strcmp(exist_player, search) == 0){
+	while(fgets(line, sizeof(line), pCheck) != NULL){
+		//extracts the username
+		extractUsername(line, username);
+		
+		if(strcmp(exist_player, username) == 0){
 			found = 1;
 		}
 		else{
@@ -79,57 +68,96 @@ void login(void){
 	}
 	else{
 		printf("great, welcome %s\n", exist_player);
+		/*
+		PLAY FUNCTION
+		SCORE OF PLAYER
+		*/
+		updateScore(100, exist_player);
 	}
-	/*
-	PLAY FUNCTION
-	SCORE OF PLAYER
-	*/
 	
-	void updateScore(points, exist_player);
-		
 }
 
 
-//this function updates the score of a player
-void updateScore(int score, char *player){
-	FILE *pFile;
-	FILE *pTemp;
-	char buffer[7000]; //stores every character in the file
-	char temporary[100];
-	int found = 0;
-	
-	pFile = fopen("history.txt", "r+");
-	if(pFile == NULL){ //checks if the file exists
-		perror("Error opening file");
-	}
-	
-	pTemp = fopen("temporay.txt", "w");
-	if(pTemp == NULL){ //checks if the file exists
-		perror("Error opening file");
-		fclose(file);
-	}
-	
+void extractUsername(char *line, char *username) {
+    char *start = strstr(line, "USER:"); // Find the start of username
+    char *end;
+    if (start != 0) {
+        start += 5; // Skip "USER:"
+        end = strstr(start, " SCORE:"); // Find the end of username
+        if (end != 0) {
+            size_t len = end - start;
+            strncpy(username, start, len);
+            username[len] = '\0'; 
+        }
+    }
+}
 
-	//read each line and if it encounters the name of the player, it modifies their score. It writes it into a temporay file 
-	while(fgets(buffer, sizeof(buffer), pFile) != NULL){
+
+
+
+
+
+
+
+
+void updateScore(int score, const char *player){
+//	unsigned long int byte = sizeFile();
+	char buffer[200];
+	char *scorePosition;
+	unsigned long int position;
+	FILE *pChange = fopen("history.txt", "r+");
+	
+	if(pChange == NULL){
+		perror("Failed to open file");
+	}
+	
+//read each line and if it encounters the name of the player it changes their score to the udated one
+	while(fgets(buffer, sizeof(buffer), pChange) != NULL){
 		if(strstr(buffer, player) != NULL){
-			sprintf(temporary, "USER: %s SCORE %d\n", player, score);
-			fputs(temporary, pTemp);
-			found = 1;
-		}
-		else{
-			fputs(buffer, pTemp);			
+			position = ftell(pChange);
+			scorePosition = strstr(buffer, "SCORE:");
+			
+			if(scorePosition != 0){
+				fseek(pChange, position - strlen(buffer) + (scorePosition - buffer) + 6, SEEK_SET);
+				fprintf(pChange, "%-4d\n", score);
+			}
 		}
 	}
 	
-	fclose(pFile);
-	fclose(pTemp);
-	
-	//replaces original file with the updated content
-	if(found != 0){
-		remove("history.txt");
-		rename("temporary.txt", "history.txt");
-	}
-	
+	fclose(pChange);
 }
+	
+
+//determines how many bytes are in a file	
+/*unsigned long int sizeFile(void){
+	unsigned long int size;
+	FILE *ptr = fopen("history.txt", "rb");
+	
+	if (ptr == NULL) {
+    	perror("Failed to open file");
+	}
+
+	if (fseek(ptr, 0, SEEK_END) != 0) {
+    	perror("Failed to seek to end of file");
+    	fclose(ptr);
+    }
+
+	size = ftell(ptr);
+	fclose(ptr);
+	
+	return size;
+}
+*/
+
+
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
