@@ -4,32 +4,57 @@
 #include<string.h>
 #include"username.h"
 
-#define NAME_MAX 30
 
-//this function signs up new players
+/*//this function signs up new players
 void signUp(void){
+	char trash[500];
 	char player[NAME_MAX];
+	int found = 0;
 	FILE* pFile;//pointer to a file
+	FILE* ptrCheck;
 
 	
 	printf("Enter your name: "); //asks for the username
 	scanf("%s", player);
 	
-	pFile = fopen("history.txt", "a+"); //opens file
-	if(pFile == NULL){ //checks if the file exists
+	ptrCheck = fopen("history.txt", "r");//pointer to check if the username already exists
+	if(ptrCheck == NULL){
 		perror("Error opening file");
+	}	
+	
+	while(fgets(trash, sizeof(trash), ptrCheck) != NULL){
+		//stores the text that reads in the .txt and then compares it to the player's name 
+		if(strstr(trash, player) != NULL){
+			found = 1;//user found
+		}
 	}
 	
-	fprintf(pFile, "USER:%s SCORE:0\n", player); 
-	//writes the username and the score into the file 
-	fclose(pFile);//closes the file 
+	fclose(ptrCheck);
+	
+	if(found != 1){
+		pFile = fopen("history.txt", "a+"); //opens file
+		if(pFile == NULL){ //checks if the file exists
+			perror("Error opening file");
+		}
+	
+		fprintf(pFile, "USER:%s SCORE:0\n", player); 
+		//writes the username and the score into the file 
+		fclose(pFile);//closes the file 
+	}
+	
+	else{
+		printf("Name already used. Choose another player: \n");
+		signUp();
+	}
+	
 	
 	/*
 	PLAY FUNCTION
 	SCORE OF PLAYER
 	*/
 	
-	updateScore(500, player);
+	
+/*	updateScore(500, player);
 	
 }
 
@@ -69,10 +94,10 @@ void login(void){
 	SCORE OF PLAYER
 	*/
 	
-	updateScore(526, player);
+/*	updateScore(568, player);
 	
 	
-}
+}*/
 
 
 
