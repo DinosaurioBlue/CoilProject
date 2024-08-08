@@ -1,6 +1,6 @@
 //startGame function is the first thing before loggin in 
 #include<stdio.h>
-#include"username.h"
+#include"score.h"
 #include"menu.h"
 #include"topscore.h"
 
